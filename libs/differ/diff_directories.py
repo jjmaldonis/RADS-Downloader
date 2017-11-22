@@ -29,10 +29,12 @@ def diff_directories(directory_list: List, base_path: str):
     results = defaultdict(list)
     directory_hashes = defaultdict(dict)
     for version_direc in directory_list:
+        print(f"Calculating hashes for directory {version_direc}...")
         version_base_string = f"{base_path}/{version_direc}/"
         for full_fn in glob.iglob(f"{version_base_string}**", recursive=True):
             fn = full_fn[len(f"{version_base_string}"):]
             if os.path.isfile(full_fn):
+                fn = fn.replace("\\", "/")  # windows fix
                 directory_hashes[version_direc][fn] = md5(full_fn)
 
     for version_direc in directory_list:  # Make sure to iterate in order
@@ -42,6 +44,8 @@ def diff_directories(directory_list: List, base_path: str):
             if fn in results:
                 latest = results[fn][-1]
                 old_hash, old_of_file = latest
+
+                fn = fn.replace("\\", "/")  # windows fix
                 if hash == old_hash:
                     results[fn].append(results[fn][-1])
                 else:
